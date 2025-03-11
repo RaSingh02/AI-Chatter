@@ -5,7 +5,7 @@ from unsloth.chat_templates import get_chat_template, train_on_responses_only
 from transformers import TrainingArguments, DataCollatorForSeq2Seq
 from trl import SFTTrainer
 import json
-from config import Config
+from config.config import Config
 
 logging.basicConfig(level=logging.INFO)
 

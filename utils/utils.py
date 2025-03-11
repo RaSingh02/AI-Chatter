@@ -1,8 +1,6 @@
 import datetime
 import logging
 import json
-import requests
-from config import Config
 
 
 def setup_logging():
@@ -13,7 +11,9 @@ def setup_logging():
 
 
 def get_timestamp():
-    return datetime.datetime.now().strftime('%H:%M:%S')
+    """Get a timestamp string suitable for filenames"""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
 def get_log_colors():
@@ -41,14 +41,3 @@ def load_json(filename):
     except Exception as e:
         logging.error(f'Error loading {filename}: {e}')
         return None
-
-
-def get_twitch_access_token():
-    url = 'https://id.twitch.tv/oauth2/token'
-    params = {
-        'client_id': Config.TWITCH_CLIENT_ID,
-        'client_secret': Config.TWITCH_ACCESS_TOKEN,
-        'grant_type': 'client_credentials'
-    }
-    response = requests.post(url, params=params)
-    return response.json()['access_token']

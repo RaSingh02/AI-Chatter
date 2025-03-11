@@ -1,4 +1,5 @@
 .env
 venv/
 pycache/
-
+chat_logs/
+utils/__pycache__/

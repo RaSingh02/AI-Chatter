@@ -2,7 +2,7 @@ import asyncio
 import logging
 from twitchio.ext import commands
 from transformers import DeepseekR1Model, DeepseekR1Tokenizer
-from config import Config
+from config.config import Config
 
 logging.basicConfig(
     level=logging.INFO,
