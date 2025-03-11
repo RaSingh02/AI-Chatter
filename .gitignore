@@ -1,5 +1,5 @@
 .env
 venv/
-pycache/
+*pycache/
 chat_logs/
-utils/__pycache__/
+*.pyc

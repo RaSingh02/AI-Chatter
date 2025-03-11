@@ -5,7 +5,12 @@ datasets
 websockets
 requests
 python-dotenv
-unsloth
+peft
+trl
+accelerate
+bitsandbytes
+evaluate
 aiohttp
 asyncio
 colorlog
+wandb

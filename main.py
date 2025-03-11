@@ -31,7 +31,6 @@ def get_device():
     elif torch.cuda.is_available():
         print(torch.cuda.is_available())
     else:
-        print(torch.__version__)
         return "cpu"
 
 # Run the script with the following arguments:
@@ -40,7 +39,7 @@ def get_device():
 # l = live_stream_detector
 # c = chat_reader
 # m = model_fine_tuner
-
+# cuda = get_device
 
 def main():
     parser = argparse.ArgumentParser(

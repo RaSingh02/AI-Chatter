@@ -11,7 +11,7 @@ setup_logging()
 class LiveStreamDetector:
     """Class to detect when a Twitch streamer goes live"""
     
-    def __init__(self, channel=None, check_interval=60, callback=None):
+    def __init__(self, channel=None, check_interval=6000, callback=None):
         """Initialize the live stream detector"""
         self.channel = channel or Config.TWITCH_CHANNEL
         self.check_interval = check_interval  # seconds
@@ -117,12 +117,9 @@ async def stream_notification_callback(channel, is_live, stream_info):
 
 async def main():
     """Main function to run the stream detector"""
-    # Get channel name from command line arguments if provided
-    import sys
-    channel = sys.argv[1] if len(sys.argv) > 1 else Config.TWITCH_CHANNEL
     
     # Create and start the detector
-    detector = LiveStreamDetector(channel=channel, callback=stream_notification_callback)
+    detector = LiveStreamDetector(Config.TWITCH_CHANNEL, callback=stream_notification_callback)
     
     try:
         await detector.start()
