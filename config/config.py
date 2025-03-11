@@ -8,10 +8,10 @@ class Config:
     TWITCH_ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
     TWITCH_REFRESH_TOKEN = os.getenv('REFRESH_TOKEN')
     TWITCH_CLIENT_ID = os.getenv('CLIENT_ID')
-    TWITCH_CHANNEL = 'squeex'
+    TWITCH_CHANNEL = os.getenv('CHANNEL')
     TWITCH_IRC_URL = 'wss://irc-ws.chat.twitch.tv:443'
     MODEL_PATH = 'fine_tuned_model'
-    BASE_MODEL = 'unsloth/DeepSeek-R1-Distill-Llama-8B'
+    BASE_MODEL = os.getenv('MODEL') | 'unsloth/DeepSeek-R1-Distill-Llama-8B'
 
     # Fine-tuning configs
     MAX_SEQ_LENGTH = 2048
