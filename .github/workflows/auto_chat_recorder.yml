@@ -1,0 +1,86 @@
+name: Auto Chat Recorder
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:  # Allow manual triggering of the workflow
+
+jobs:
+  run-auto-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330  # 5.5 hours to allow for job completion before next run
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install PyTorch CPU version first to avoid CUDA-related issues
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          # Install other dependencies
+          pip install -r requirements.txt
+      
+      - name: Create logs directory
+        run: mkdir -p logs/live_stream_detector
+      
+      - name: Create run script with timeout
+        run: |
+          cat > run_with_timeout.py << 'EOF'
+          import asyncio
+          import signal
+          import sys
+          import time
+          from utils.auto_chat_recorder import AutoChatRecorder
+          from config.config import Config
+
+          # Set the maximum runtime in seconds (5 hours)
+          MAX_RUNTIME = 5 * 60 * 60
+
+          async def main():
+              # Create recorder
+              recorder = AutoChatRecorder(
+                  channel=Config.TWITCH_CHANNEL,
+                  check_interval=600  # Check every 10 minutes
+              )
+              
+              # Set up timeout
+              start_time = time.time()
+              
+              # Start the recorder in a task
+              recorder_task = asyncio.create_task(recorder.start())
+              
+              # Check periodically if we need to stop due to timeout
+              while True:
+                  if time.time() - start_time > MAX_RUNTIME:
+                      print(f"Reached maximum runtime of {MAX_RUNTIME} seconds. Stopping.")
+                      # Stop the recorder
+                      if recorder.recording and recorder.chat_reader:
+                          await recorder.chat_reader.stop()
+                      await recorder.detector.stop()
+                      return
+                  await asyncio.sleep(60)  # Check every minute
+          
+          if __name__ == "__main__":
+              try:
+                  asyncio.run(main())
+              except KeyboardInterrupt:
+                  print("Received interrupt signal. Shutting down.")
+              sys.exit(0)
+          EOF
+      
+      - name: Run auto chat recorder with timeout
+        run: python run_with_timeout.py
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CHANNEL: ${{ secrets.CHANNEL }}
+          MODEL: ${{ secrets.MODEL }} 

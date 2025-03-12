@@ -78,6 +78,34 @@ python main.py bot
 - `twitch/` - Twitch API integration and chat handling
 - `utils/` - Utility functions and helper scripts
 
+## GitHub Actions Automation
+
+This project includes a GitHub Actions workflow that can automatically run the auto chat recorder on a schedule, even when your local machine is offline.
+
+### Setting Up GitHub Actions Secrets
+
+To use the GitHub Actions workflow, you need to set up the following secrets in your GitHub repository:
+
+1. Go to your GitHub repository
+2. Click on "Settings" > "Secrets and variables" > "Actions"
+3. Click on "New repository secret"
+4. Add the following secrets:
+   - `ACCESS_TOKEN`: Your Twitch access token
+   - `REFRESH_TOKEN`: Your Twitch refresh token
+   - `CLIENT_ID`: Your Twitch client ID
+   - `CHANNEL`: The Twitch channel to monitor
+   - `MODEL`: The model to use (e.g., `unsloth/DeepSeek-R1-Distill-Qwen-1.5B-unsloth-bnb-4bit`)
+
+### Workflow Configuration
+
+The workflow is configured to:
+- Run every 6 hours by default
+- Run for a maximum of 5 hours each time
+- Can be manually triggered using the "Actions" tab in GitHub
+- Uses CPU-based PyTorch to ensure compatibility with GitHub Actions runners
+
+To modify the schedule, edit the `.github/workflows/auto_chat_recorder.yml` file.
+
 ## Logs and Data
 
 - Live stream detection logs: `logs/live_stream_detector/`
