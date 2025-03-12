@@ -86,3 +86,4 @@ xformers==0.0.29.post3
 xxhash==3.5.0
 yarl==1.18.3
 zipp==3.21.0
+twitchio=2.10.0

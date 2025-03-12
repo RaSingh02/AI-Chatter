@@ -2,11 +2,12 @@ import argparse
 import asyncio
 import sys
 
-import torch
 from utils.dataset_formatter import format_dataset
 from utils.live_stream_detector import main as live_stream_detector_main
 from twitch.chat_reader import main as chat_reader_main
 from fine_tuning.model_fine_tuner import train_model
+from twitch.chatter_bot import TwitchBot
+from utils.auto_chat_recorder import main as auto_chat_recorder_main
 
 
 def run_dataset_formatter():
@@ -25,43 +26,39 @@ def run_model_fine_tuner():
     train_model()
 
 
-def get_device():
-    if torch.backends.mps.is_available():
-        return "mps"
-    elif torch.cuda.is_available():
-        print(torch.cuda.is_available())
-    else:
-        return "cpu"
+async def run_bot():
+    bot = TwitchBot()
+    await bot.start()
+
+
+async def run_auto_chat_recorder():
+    await auto_chat_recorder_main()
+
 
 # Run the script with the following arguments:
 # python main.py <script>
-# d = dataset_formatter
-# l = live_stream_detector
-# c = chat_reader
-# m = model_fine_tuner
-# cuda = get_device
+# train = model_fine_tuner
+# bot = twitch_bot
+# auto = auto_chat_recorder
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="Run various project scripts.")
     parser.add_argument(
         "script",
-        choices=["d", "l", "c", "m", "cuda"],
-        help="The script to run"
+        choices=["train", "bot", "auto"],
+        help="Choose which script to run."
     )
 
     args = parser.parse_args()
 
-    if args.script == "d":
-        run_dataset_formatter()
-    elif args.script == "l":
-        asyncio.run(run_live_stream_detector())
-    elif args.script == "c":
-        asyncio.run(run_chat_reader())
-    elif args.script == "m":
+    if args.script == "train":
         run_model_fine_tuner()
-    elif args.script == "cuda":
-        print(get_device())
+    elif args.script == "bot":
+        asyncio.run(run_bot())
+    elif args.script == "auto":
+        asyncio.run(run_auto_chat_recorder())
     else:
         print("Invalid script choice.")
         sys.exit(1)

@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import logging
 import json
 
@@ -12,8 +12,7 @@ def setup_logging():
 
 def get_timestamp():
     """Get a timestamp string suitable for filenames"""
-    from datetime import datetime
-    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    return dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
 def get_log_colors():

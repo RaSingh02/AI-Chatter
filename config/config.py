@@ -10,8 +10,8 @@ class Config:
     TWITCH_CLIENT_ID = os.getenv('CLIENT_ID')
     TWITCH_CHANNEL = os.getenv('CHANNEL')
     TWITCH_IRC_URL = 'wss://irc-ws.chat.twitch.tv:443'
-    MODEL_PATH = 'fine_tuned_model'
-    BASE_MODEL = os.getenv('MODEL') | 'unsloth/DeepSeek-R1-Distill-Llama-8B'
+    MODEL_PATH = 'model/fine_tuned_model'
+    BASE_MODEL = os.getenv('MODEL')
 
     # Fine-tuning configs
     MAX_SEQ_LENGTH = 2048
@@ -23,4 +23,6 @@ class Config:
     WARMUP_STEPS = 5
     LEARNING_RATE = 2e-4
     WEIGHT_DECAY = 0.01
-    TRAINING_STEPS = 500  # Minimum recommended steps
+    TRAINING_STEPS = 500
+
+    MESSAGE_FREQUENCY = 120  # Generate a message every 120 seconds

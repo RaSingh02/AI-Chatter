@@ -30,7 +30,7 @@ class TwitchChatReader:
         self.messages = {}
         self.running = False
         self.websocket = None
-        self.message_count = 0 # Number of messages read
+        self.message_count = 0  # Number of messages read
         self.batch_size = 250  # Save every 250 messages
 
         # Create chat_logs directory if it doesn't exist
@@ -135,7 +135,7 @@ class TwitchChatReader:
                     if self.message_count % self.batch_size == 0:
                         self.save_messages()
                         logging.info(
-                            f"Saved batch of {self.batch_size} messages. Total messages: {len(self.messages)}")
+                            f"Saved batch of {self.message_count} messages. Total messages: {len(self.messages)}")
         except Exception as e:
             logging.error(f"Error processing message: {e}")
 
@@ -165,9 +165,7 @@ class TwitchChatReader:
 
 async def main():
     """Main function to run the chat reader"""
-    # Get channel name from command line arguments if provided
-    import sys
-    channel = sys.argv[1] if len(sys.argv) > 1 else Config.TWITCH_CHANNEL
+    channel = Config.TWITCH_CHANNEL
 
     # Check if the channel is valid
     twitch_api = TwitchAPI()
