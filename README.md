@@ -9,6 +9,7 @@ This project implements an AI-powered Twitch chat bot that uses a fine-tuned Dee
 - Model fine-tuning with LoRA adapters
 - Live stream detection
 - AI-powered chat interactions
+- Automated chat recording and dataset generation
 
 ## Requirements
 
@@ -34,3 +35,52 @@ CLIENT_ID=your_client_id
 CHANNEL=streamer_channel
 MODEL=your_model (default: deepseek-r1)
 ```
+
+## Usage
+
+### Automated Chat Recording
+
+The project includes an automated system for recording chat when a streamer goes live and formatting the dataset when they go offline:
+
+```bash
+python main.py auto
+```
+
+This will:
+1. Monitor the specified Twitch channel
+2. Automatically start recording chat when the streamer goes live
+3. Stop recording when the streamer goes offline
+4. Format the chat logs into a dataset for training
+
+### Model Fine-tuning
+
+To fine-tune the model on collected chat data:
+
+```bash
+python main.py train
+```
+
+### Running the Chat Bot
+
+To run the AI chat bot in a Twitch channel:
+
+```bash
+python main.py bot
+```
+
+## Project Structure
+
+- `config/` - Configuration files and settings
+- `data/` - Directory for chat logs and formatted datasets
+- `fine_tuning/` - Model fine-tuning scripts
+- `logs/` - Log files from various components
+- `model/` - Trained model files
+- `twitch/` - Twitch API integration and chat handling
+- `utils/` - Utility functions and helper scripts
+
+## Logs and Data
+
+- Live stream detection logs: `logs/live_stream_detector/`
+- Auto chat recorder logs: `logs/`
+- Chat logs: `data/chat_logs/`
+- Formatted datasets: `data/formatted_logs/`

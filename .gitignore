@@ -3,3 +3,4 @@ venv/
 *pycache/
 chat_logs/
 *.pyc
+model/
