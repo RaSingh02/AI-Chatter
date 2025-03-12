@@ -3,8 +3,6 @@ import asyncio
 import sys
 
 from utils.dataset_formatter import format_dataset
-from utils.live_stream_detector import main as live_stream_detector_main
-from twitch.chat_reader import main as chat_reader_main
 from fine_tuning.model_fine_tuner import train_model
 from twitch.chatter_bot import TwitchBot
 from utils.auto_chat_recorder import main as auto_chat_recorder_main
@@ -12,14 +10,6 @@ from utils.auto_chat_recorder import main as auto_chat_recorder_main
 
 def run_dataset_formatter():
     format_dataset()
-
-
-async def run_live_stream_detector():
-    await live_stream_detector_main()
-
-
-async def run_chat_reader():
-    await chat_reader_main()
 
 
 def run_model_fine_tuner():
@@ -47,7 +37,7 @@ def main():
         description="Run various project scripts.")
     parser.add_argument(
         "script",
-        choices=["train", "bot", "auto"],
+        choices=["train", "bot", "auto", "format"],
         help="Choose which script to run."
     )
 
@@ -55,6 +45,8 @@ def main():
 
     if args.script == "train":
         run_model_fine_tuner()
+    elif args.script == "format":
+        run_dataset_formatter()
     elif args.script == "bot":
         asyncio.run(run_bot())
     elif args.script == "auto":

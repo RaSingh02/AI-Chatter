@@ -60,8 +60,13 @@ def format_dataset():
                 f"Error processing message from {username}: {str(e)}")
             continue
 
-    save_json(formatted_data,
-              f'data/formatted_logs/dataset.json')
+    # Save the formatted data to a JSON file, if the file already exists, append to it
+    if Path('data/formatted_logs/dataset.json').exists():
+        existing_data = load_json('data/formatted_logs/dataset.json')
+        existing_data.extend(formatted_data)
+        save_json(existing_data, 'data/formatted_logs/dataset.json')
+    else:
+        save_json(formatted_data, 'data/formatted_logs/dataset.json')
 
 
 if __name__ == '__main__':
