@@ -82,4 +82,14 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CHANNEL: ${{ secrets.CHANNEL }}
-          MODEL: ${{ secrets.MODEL }} 
+          MODEL: ${{ secrets.MODEL }}
+      
+      - name: Commit and push chat logs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add logs/
+          git commit -m "Add chat logs from automated recording [skip ci]" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
