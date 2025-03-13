@@ -1,0 +1,95 @@
+name: Stream Live Detector
+
+on:
+  schedule:
+    # Run every 10 minutes between 3PM to 2AM EST
+    - cron: "*/10 19-23,0-6 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-stream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv
+
+      - name: Check if stream is live
+        id: check_stream
+        run: |
+          python - <<EOF
+          import requests
+          import os
+          import json
+
+          channel = os.environ['CHANNEL']
+          client_id = os.environ['CLIENT_ID']
+          access_token = os.environ['ACCESS_TOKEN']
+
+          headers = {
+              'Client-ID': client_id,
+              'Authorization': f'Bearer {access_token}'
+          }
+
+          response = requests.get(
+              f'https://api.twitch.tv/helix/streams?user_login={channel}',
+              headers=headers
+          )
+
+          is_live = False
+          if response.status_code == 200:
+              data = response.json()
+              is_live = len(data['data']) > 0
+
+          # Set output for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              print(f'is_live={str(is_live).lower()}', file=f)
+          EOF
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CHANNEL: ${{ secrets.CHANNEL }}
+
+      - name: Check for running recorder workflow
+        id: check_workflow
+        run: |
+          python - <<EOF
+          import requests
+          import os
+
+          token = os.environ['GITHUB_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+
+          headers = {
+              'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github.v3+json'
+          }
+
+          url = f'https://api.github.com/repos/{repo}/actions/runs?status=in_progress'
+          response = requests.get(url, headers=headers)
+
+          recorder_running = any(
+              run['name'] == 'Chat Recorder' 
+              for run in response.json()['workflow_runs']
+          )
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              print(f'recorder_running={str(recorder_running).lower()}', file=f)
+          EOF
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger recorder if live and not already running
+        if: steps.check_stream.outputs.is_live == 'true' && steps.check_workflow.outputs.recorder_running == 'false'
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Chat Recorder
+          token: ${{ secrets.GITHUB_TOKEN }}
