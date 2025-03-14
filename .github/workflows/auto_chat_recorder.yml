@@ -46,10 +46,7 @@ jobs:
 
           async def main():
               # Create recorder
-              recorder = AutoChatRecorder(
-                  channel=Config.TWITCH_CHANNEL,
-                  check_interval=600  # Check every 10 minutes
-              )
+              recorder = AutoChatRecorder(channel=Config.TWITCH_CHANNEL)
               
               # Set up timeout
               start_time = time.time()
@@ -61,10 +58,8 @@ jobs:
               while True:
                   if time.time() - start_time > MAX_RUNTIME:
                       print(f"Reached maximum runtime of {MAX_RUNTIME} seconds. Stopping.")
-                      # Stop the recorder
-                      if recorder.recording and recorder.chat_reader:
+                      if recorder.chat_reader:
                           await recorder.chat_reader.stop()
-                      await recorder.detector.stop()
                       return
                   await asyncio.sleep(60)  # Check every minute
 
@@ -80,18 +75,20 @@ jobs:
         run: python run_with_timeout.py
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CHANNEL: ${{ secrets.CHANNEL }}
           MODEL: ${{ secrets.MODEL }}
-          CHECK_BETWEEN_HOURS: "false" # Don't check time in recorder
 
       - name: Commit and push chat logs
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add logs/
-          git commit -m "Add chat logs from automated recording [skip ci]" || echo "No changes to commit"
-          git push
+          # Make sure git can track new files in these directories
+          git add -f logs/ || true
+          git add -f dataset/ || true
+          # Try to commit changes - if there are no changes this will "fail" but that's ok
+          git commit -m "Add chat logs and dataset from automated recording [skip ci]" || echo "No changes to commit"
+          # Push changes if any were made
+          git push origin HEAD:${GITHUB_REF#refs/heads/} || echo "No changes to push"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

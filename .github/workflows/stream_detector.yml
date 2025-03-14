@@ -6,6 +6,11 @@ on:
     - cron: "*/10 19-23,0-6 * * *"
   workflow_dispatch:
 
+# Add permissions block
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   check-stream:
     runs-on: ubuntu-latest
@@ -58,14 +63,15 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CHANNEL: ${{ secrets.CHANNEL }}
 
-      - name: Check for running recorder workflow
+      - name: Check for running recorder workflow and its duration
         id: check_workflow
         run: |
           python - <<EOF
           import requests
           import os
+          import time
 
-          token = os.environ['GITHUB_TOKEN']
+          token = os.environ['PAT']
           repo = os.environ['GITHUB_REPOSITORY']
 
           headers = {
@@ -76,20 +82,29 @@ jobs:
           url = f'https://api.github.com/repos/{repo}/actions/runs?status=in_progress'
           response = requests.get(url, headers=headers)
 
-          recorder_running = any(
-              run['name'] == 'Chat Recorder' 
-              for run in response.json()['workflow_runs']
-          )
+          recorder_running = False
+          time_exceeded = False
+
+          for run in response.json()['workflow_runs']:
+              if run['name'] == 'Chat Recorder':
+                  recorder_running = True
+                  start_time = time.mktime(time.strptime(run['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
+                  duration = time.time() - start_time
+                  # Check if duration is approaching 6 hours (5.5 hours in seconds)
+                  if duration > (5.5 * 3600):
+                      time_exceeded = True
+                  break
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               print(f'recorder_running={str(recorder_running).lower()}', file=f)
+              print(f'time_exceeded={str(time_exceeded).lower()}', file=f)
           EOF
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT: ${{ secrets.PAT }}
 
-      - name: Trigger recorder if live and not already running
-        if: steps.check_stream.outputs.is_live == 'true' && steps.check_workflow.outputs.recorder_running == 'false'
+      - name: Trigger recorder if live and (not running or time exceeded)
+        if: steps.check_stream.outputs.is_live == 'true' && (steps.check_workflow.outputs.recorder_running == 'false' || steps.check_workflow.outputs.time_exceeded == 'true')
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: Chat Recorder
-          token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: auto_chat_recorder.yml
+          token: ${{ secrets.PAT }}
