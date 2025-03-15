@@ -29,7 +29,9 @@ jobs:
           # Add any other specific dependencies your script needs here
 
       - name: Create logs directory
-        run: mkdir -p logs/live_stream_detector
+        run: |
+          mkdir -p logs/live_stream_detector
+          mkdir -p data/chat_logs
 
       - name: Create run script with timeout
         run: |
@@ -83,12 +85,12 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # Make sure git can track new files in these directories
-          git add -f logs/ || true
-          git add -f dataset/ || true
-          # Try to commit changes - if there are no changes this will "fail" but that's ok
-          git commit -m "Add chat logs and dataset from automated recording [skip ci]" || echo "No changes to commit"
-          # Push changes if any were made
+          # Stage any new or modified files
+          git add logs/* || true
+          git add data/chat_logs/* || true
+          # Try to commit changes if there are any
+          git diff --staged --quiet || git commit -m "Add chat logs from automated recording [skip ci]"
+          # Push if there were changes
           git push origin HEAD:${GITHUB_REF#refs/heads/} || echo "No changes to push"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
