@@ -1,0 +1,4 @@
+2025-03-17 01:59:04,746 - auto_chat_recorder - INFO - Starting chat recording for channel 'squeex'
+2025-03-17 06:59:08,799 - auto_chat_recorder - INFO - Chat recorder stopped
+2025-03-17 06:59:08,799 - auto_chat_recorder - INFO - Formatting chat logs into dataset
+2025-03-17 06:59:08,824 - auto_chat_recorder - INFO - Dataset formatting complete
