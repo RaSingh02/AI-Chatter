@@ -88,6 +88,7 @@ jobs:
           # Stage any new or modified files
           git add logs/* || true
           git add data/chat_logs/* || true
+          git add data/formatted_logs/* || true
           # Try to commit changes if there are any
           git diff --staged --quiet || git commit -m "Add chat logs from automated recording [skip ci]"
           # Push if there were changes

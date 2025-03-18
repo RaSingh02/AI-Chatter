@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from typing import Coroutine
 
 from config.config import Config
 from utils.dataset_formatter import format_dataset
@@ -47,8 +48,15 @@ class AutoChatRecorder:
                 logger.info("Chat recorder stopped")
                 # Format the dataset
                 logger.info("Formatting chat logs into dataset")
-                format_dataset()
-                logger.info("Dataset formatting complete")
+                try:
+                    if isinstance(format_dataset, Coroutine):
+                        await format_dataset()
+                    else:
+                        format_dataset()
+                    logger.info("Dataset formatting complete")
+                except Exception as e:
+                    logger.error(f"Error formatting dataset: {e}")
+                    raise  # Re-raise to ensure we see the full error
 
 
 async def main():
